@@ -1,10 +1,12 @@
-> note: needs refactoring of lerp functionality
-
 ## smoothHud
-simple fabric mod that animates the selected hotbar slot highlight when switching slots.
+simple fabric mod which animates the selected hotbar slot highlight when switching slots.
+<br>[→ modrinth page](https://modrinth.com/mod/smooth-hud)
 
 ### preview:
-![animated hotbar slot switching](https://wsrv.nl/?url=https%3A%2F%2Fcdn.79183.org%2Fanimated_hotbar.gif&n=-1)
+![animated hotbar slot switching](https://cdn.modrinth.com/data/wZNh7SDS/images/9005ad505a83fb459fa11532c1f23cd7bf0a31c8.gif)
 
-### bugs & suggestions
-if you experience bugs or have any suggestions, feel free to open an issue at https://github.com/treegfx/smoothHud/issues
+<details>
+  <summary>modmenu beta api notice</summary>
+the new build for minecraft 26.2 currently uses modmenu beta api (20.0.0-beta.3).
+this should not affect users at all. when stable versions release, i'll migrate to those.
+</details>
