@@ -1,23 +1,22 @@
 package dev.smoothhud.screen;
 
-import dev.smoothhud.Config;
 import dev.smoothhud.ConfigManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.AbstractSliderButton;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.NonNull;
-import net.minecraft.client.input.KeyEvent;
-import static net.minecraft.util.Mth.clamp;
+import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.SliderWidget;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
+
+import java.util.List;
+
 
 @Environment(EnvType.CLIENT)
-public class ConfigScreen extends Screen{
-
+public class ConfigScreen extends Screen {
     private final Screen parent;
     private int selectedSlot = 0;
     private float tempSpeed = ConfigManager.getConfig().speed;
@@ -25,65 +24,56 @@ public class ConfigScreen extends Screen{
     private float currentX;
 
     public ConfigScreen(Screen parent) {
-        super(Component.literal("SmoothHud Config"));
+        super(Text.of("SmoothHud Config"));
         this.parent = parent;
     }
 
     @Override
     protected void init() {
-        AbstractSliderButton speedButtonWidget = new AbstractSliderButton(
-                this.width / 2 - 100, this.height / 4 + 24,
-                200, 20,
-                Component.literal("Speed: " + (int) tempSpeed),
-                ((int) tempSpeed - 2) / 38.f
-        ) {
-            @Override
-            protected void updateMessage() {
-                // cursed math
-                tempSpeed = (int) (this.value * 38.f) + 2;
-                this.setMessage(Component.literal("Speed: " + (int) tempSpeed));
-            }
+        this.addDrawableChild(
+                new SliderWidget(this.width / 2 - 100, this.height / 4 + 24, 200, 20, Text.of("Speed: " + (int) tempSpeed), ((int) tempSpeed - 2) / 38.0F) {
+                    @Override
+                    protected void updateMessage() {
+                        tempSpeed = (int) (this.value * 38) + 2;
+                        this.setMessage(Text.of("Speed: " + (int) tempSpeed));
+                    }
 
-            @Override protected void applyValue() {}
-        };
+                    @Override
+                    protected void applyValue() {}
+                }
+        );
 
-        Button saveButtonWidget = Button.builder(Component.literal("Save & Exit"), (_) -> {
-            // just assume everything going fine
-            ConfigManager.getConfig().speed = tempSpeed;
-            ConfigManager.saveConfig();
-            this.minecraft.setScreenAndShow(parent);
-        }).bounds(
-                this.width / 2 - 100, this.height / 4 + 48,
-                200, 20
-        ).build();
+        this.addDrawableChild(
+                ButtonWidget.builder(Text.of("Save & Exit"), (x) -> {
+                            assert this.client != null;
+                            ConfigManager.getConfig().speed = tempSpeed;
+                            ConfigManager.saveConfig();
+                            this.client.setScreen(parent);
+                }).dimensions(this.width / 2 - 100, this.height / 4 + 48, 200, 20).build()
+        );
 
-        Button cancelButtonWidget = Button.builder(Component.literal("Cancel"), (_) -> {
-            this.minecraft.setScreenAndShow(parent);
-        }).bounds(
-                this.width / 2 - 100, this.height / 4 + 72,
-                200, 20
-        ).build();
-
-
-        this.addRenderableWidget(speedButtonWidget);
-        this.addRenderableWidget(saveButtonWidget);
-        this.addRenderableWidget(cancelButtonWidget);
+        this.addDrawableChild(
+                ButtonWidget.builder(Text.of("Cancel"), (button) -> {
+                    assert this.client != null;
+                    this.client.setScreen(parent);
+                }).dimensions(this.width / 2 - 100, this.height / 4 + 72, 200, 20).build()
+        );
     }
 
     @Override
-    public boolean keyPressed(KeyEvent event) {
-        int keyCode = event.key();
-        // todo: refactor to use actual keybinds
-        if (keyCode >= 30 && keyCode <= 38) {
-            selectedSlot = keyCode - 30;
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        //simple ass hotkey feature
+        if (keyCode >= 49 && keyCode <= 57) {
+            selectedSlot = keyCode - 49;
             return true;
         }
-        return super.keyPressed(event);
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        verticalAmount = clamp(verticalAmount, -1.0F, 1.0F);
+        verticalAmount = MathHelper.clamp(verticalAmount, -1.0F, 1.0F);
+        //scrolling
         if (verticalAmount > 0) {
             selectedSlot = (selectedSlot - 1 + 9) % 9;
         } else if (verticalAmount < 0) {
@@ -93,8 +83,8 @@ public class ConfigScreen extends Screen{
     }
 
     @Override
-    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-        super.extractRenderState(graphics, mouseX, mouseY, delta);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
 
         float targetX = selectedSlot * 20;
 
@@ -106,34 +96,35 @@ public class ConfigScreen extends Screen{
             float diff = targetX - currentX;
             currentX += diff * deltaTime * tempSpeed;
         }
-
         int hotbarX = this.width / 2 - 91;
         int hotbarY = this.height / 4 + 100;
-        int roundedCurrentX = Math.round(currentX) - 1;
 
-        // hotbar
-        graphics.blit(
+        context.drawTexture(
                 RenderPipelines.GUI_TEXTURED,
-                Identifier.fromNamespaceAndPath("minecraft", "textures/gui/sprites/hud/hotbar.png"),
+                Identifier.of("minecraft", "textures/gui/sprites/hud/hotbar.png"),
                 hotbarX, hotbarY,
                 0, 0, 182, 22,
                 182, 22, 182, 22
         );
 
-        // hotbar selection
-        graphics.blit(
+        int roundedCurrentX = Math.round(currentX) - 1;
+
+        context.drawTexture(
                 RenderPipelines.GUI_TEXTURED,
-                Identifier.fromNamespaceAndPath("minecraft", "textures/gui/sprites/hud/hotbar_selection.png"),
+                Identifier.of("minecraft", "textures/gui/sprites/hud/hotbar_selection.png"),
                 hotbarX + roundedCurrentX, hotbarY - 1,
                 0, 0, 24, 23,
                 24, 23, 24, 23
         );
 
-        // text
-        int x = this.width / 2;
+        long time = System.currentTimeMillis();
+        String message = "Scroll or press hotkeys to preview";
+
+        int x = (this.width - this.textRenderer.getWidth(message)) / 2;
         int y = hotbarY + 25;
 
-        int color = ((currentTime / 300) % 2 == 0) ? 0xFF555555 : 0xFF666666;
-        graphics.centeredText(this.font, "Scroll or press hotkeys to preview", x, y, color);
+        int color = ((time / 300) % 2 == 0) ? 0xFF555555 : 0xFF666666;
+
+        context.drawText(this.textRenderer, message, x, y, color, true);
     }
 }
