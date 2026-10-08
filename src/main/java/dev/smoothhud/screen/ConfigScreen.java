@@ -34,6 +34,7 @@ public class ConfigScreen extends Screen {
                 new SliderWidget(this.width / 2 - 100, this.height / 4 + 24, 200, 20, Text.of("Speed: " + (int) tempSpeed), ((int) tempSpeed - 2) / 38.0F) {
                     @Override
                     protected void updateMessage() {
+                        // cursed math
                         tempSpeed = (int) (this.value * 38) + 2;
                         this.setMessage(Text.of("Speed: " + (int) tempSpeed));
                     }
@@ -62,7 +63,7 @@ public class ConfigScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        //simple ass hotkey feature
+        // todo: refactor to use actual keybinds
         if (keyCode >= 49 && keyCode <= 57) {
             selectedSlot = keyCode - 49;
             return true;
@@ -73,7 +74,6 @@ public class ConfigScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         verticalAmount = MathHelper.clamp(verticalAmount, -1.0F, 1.0F);
-        //scrolling
         if (verticalAmount > 0) {
             selectedSlot = (selectedSlot - 1 + 9) % 9;
         } else if (verticalAmount < 0) {
@@ -99,6 +99,7 @@ public class ConfigScreen extends Screen {
         int hotbarX = this.width / 2 - 91;
         int hotbarY = this.height / 4 + 100;
 
+        // hotbar
         context.drawTexture(
                 RenderPipelines.GUI_TEXTURED,
                 Identifier.of("minecraft", "textures/gui/sprites/hud/hotbar.png"),
@@ -109,6 +110,7 @@ public class ConfigScreen extends Screen {
 
         int roundedCurrentX = Math.round(currentX) - 1;
 
+        // hotbar selection
         context.drawTexture(
                 RenderPipelines.GUI_TEXTURED,
                 Identifier.of("minecraft", "textures/gui/sprites/hud/hotbar_selection.png"),

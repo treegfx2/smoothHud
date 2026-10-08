@@ -3,12 +3,12 @@
 	"id": "smoothhud",
 	"version": "${version}",
 	"name": "SmoothHud",
-	"description": "Simple mod to animate the selected hotbar slot highlight when switching slots.",
+	"description": "Simple mod that animates the selected hotbar slot highlight when switching slots.",
 	"authors": [
 		"treegfx"
 	],
 	"contact": {
-		"sources": "https://github.com/treegfx/smoothHud"
+		"sources": "https://github.com/treegfx2/smoothHud"
 	},
 	"icon": "assets/smoothhud/icon.png",
 	"environment": "*",

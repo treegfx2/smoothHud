@@ -25,24 +25,42 @@ public abstract class InGameHudMixin {
 	@Unique
 	private float currentX = 0;
 	@Unique
-	private long lastTickTime = 0;
+	private long lastTickTime = -1;
+	@Unique
+	private boolean reset = true;
+	@Unique
+	private static PlayerEntity lastPlayer = null;
 
 	@Inject(
 			method = "renderHotbar",
 			at = @At("HEAD")
 	)
 	private void onRenderHotbar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-		PlayerEntity player = this.getCameraPlayer();
+		// todo: move non-immediate lookups like this to onTick or something
+		PlayerEntity player = (PlayerEntity) this.getCameraPlayer();
 		if (player != null) {
-			float targetX = player.getInventory().getSelectedSlot() * 20;
+			// reset stale variables after player recreation
+			if (player != lastPlayer) { reset = true; lastPlayer = player; }
 
-			long currentTime = System.currentTimeMillis();
-			float deltaTime = (currentTime - lastTickTime) / 1000f;
-			lastTickTime = currentTime;
+			long now = System.currentTimeMillis();
+			float targetX = Math.clamp(player.getInventory().getSelectedSlot(), 0, 8) * 20;
 
-			if (Math.abs(targetX - currentX) > 0.1f) {
-				float diff = targetX - currentX;
-				currentX += diff * deltaTime * ConfigManager.getConfig().speed;
+			if (reset) {
+				lastTickTime = now;
+				currentX = targetX;
+				reset = false;
+			}
+
+			float deltaTime = Math.min((now - lastTickTime) / 1000f, 0.1f);
+			lastTickTime = now;
+
+			float diffX = targetX - currentX;
+
+			if (Math.abs(diffX) < 0.1f) {
+				currentX = targetX;
+			} else {
+				float t = Math.min(deltaTime * ConfigManager.getConfig().speed, 1f);
+				currentX += diffX * t;
 			}
 		}
 	}
@@ -56,7 +74,7 @@ public abstract class InGameHudMixin {
 			)
 	)
 	private void mod(Args args) {
-		int baseX = (MinecraftClient.getInstance().getWindow().getScaledWidth() - 182) / 2 - 1;
+		int baseX = (MinecraftClient.getInstance().getWindow().getScaledWidth() / 2) - 91 - 1;
 		args.set(2, Math.round(baseX + currentX));
 	}
 }
