@@ -1,4 +1,4 @@
-## smoothHud
+## SmoothHud
 simple fabric mod which animates the selected hotbar slot highlight when switching slots.
 <br>[→ modrinth page](https://modrinth.com/mod/smooth-hud)
 

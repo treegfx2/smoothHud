@@ -1,6 +1,5 @@
 package dev.smoothhud.screen;
 
-import dev.smoothhud.Config;
 import dev.smoothhud.ConfigManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -8,11 +7,12 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
-import net.minecraft.client.input.KeyEvent;
+
 import static net.minecraft.util.Mth.clamp;
 
 @Environment(EnvType.CLIENT)
@@ -25,7 +25,7 @@ public class ConfigScreen extends Screen{
     private float currentX;
 
     public ConfigScreen(Screen parent) {
-        super(Component.literal("SmoothHud Config"));
+        super(Component.literal("SmoothHud dev.smoothhud.Config"));
         this.parent = parent;
     }
 
@@ -74,8 +74,8 @@ public class ConfigScreen extends Screen{
     public boolean keyPressed(KeyEvent event) {
         int keyCode = event.key();
         // todo: refactor to use actual keybinds
-        if (keyCode >= 30 && keyCode <= 38) {
-            selectedSlot = keyCode - 30;
+        if (keyCode >= 49 && keyCode <= 57) {
+            selectedSlot = keyCode - 49;
             return true;
         }
         return super.keyPressed(event);
