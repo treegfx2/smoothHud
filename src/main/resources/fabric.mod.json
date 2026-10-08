@@ -8,7 +8,7 @@
 		"treegfx"
 	],
 	"contact": {
-		"sources": "https://github.com/treegfx/smoothHud"
+		"sources": "https://github.com/treegfx2/smoothHud"
 	},
 	"icon": "assets/smoothhud/icon.png",
 	"environment": "*",
