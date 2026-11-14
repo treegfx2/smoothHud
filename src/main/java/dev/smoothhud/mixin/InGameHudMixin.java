@@ -5,8 +5,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -22,6 +24,9 @@ public abstract class InGameHudMixin {
 	@Nullable
 	protected abstract PlayerEntity getCameraPlayer();
 
+	@Shadow
+	@Final
+	private MinecraftClient client;
 	@Unique
 	private float currentX = 0;
 	@Unique
@@ -37,8 +42,8 @@ public abstract class InGameHudMixin {
 	)
 	private void onRenderHotbar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
 		// todo: move non-immediate lookups like this to onTick or something
-		PlayerEntity player = (PlayerEntity) this.getCameraPlayer();
-		if (player != null) {
+		Entity cameraEntity = this.client.getCameraEntity();
+		if (cameraEntity instanceof PlayerEntity player) {
 			// reset stale variables after player recreation
 			if (player != lastPlayer) { reset = true; lastPlayer = player; }
 
@@ -54,13 +59,13 @@ public abstract class InGameHudMixin {
 			float deltaTime = Math.min((now - lastTickTime) / 1000f, 0.1f);
 			lastTickTime = now;
 
-			float diffX = targetX - currentX;
+			float deltaX = targetX - currentX;
 
-			if (Math.abs(diffX) < 0.1f) {
+			if (Math.abs(deltaX) < 0.1f) {
 				currentX = targetX;
 			} else {
 				float t = Math.min(deltaTime * ConfigManager.getConfig().speed, 1f);
-				currentX += diffX * t;
+				currentX += deltaX * t;
 			}
 		}
 	}
