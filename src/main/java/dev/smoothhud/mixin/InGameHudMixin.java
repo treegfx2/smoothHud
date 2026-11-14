@@ -5,6 +5,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,8 +38,8 @@ public abstract class InGameHudMixin {
 	)
 	private void onRenderHotbar(CallbackInfo info) {
 		// todo: move non-immediate lookups like this to onTick or something
-		Player player = (Player) this.minecraft.getCameraEntity();
-		if (player != null) {
+		Entity cameraEntity = this.minecraft.getCameraEntity();
+		if (cameraEntity instanceof Player player) {
 			// reset stale variables after player recreation
 			if (player != lastPlayer) { reset = true; lastPlayer = player; }
 
@@ -54,13 +55,13 @@ public abstract class InGameHudMixin {
 			float deltaTime = Math.min((now - lastTickTime) / 1000f, 0.1f);
 			lastTickTime = now;
 
-			float diffX = targetX - currentX;
+			float deltaX = targetX - currentX;
 
-			if (Math.abs(diffX) < 0.1f) {
+			if (Math.abs(deltaX) < 0.1f) {
 				currentX = targetX;
 			} else {
 				float t = Math.min(deltaTime * ConfigManager.getConfig().speed, 1f);
-				currentX += diffX * t;
+				currentX += deltaX * t;
 			}
 		}
 	}
