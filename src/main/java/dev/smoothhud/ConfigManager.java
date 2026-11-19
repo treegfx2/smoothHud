@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.google.gson.JsonParseException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -23,12 +23,16 @@ public class ConfigManager {
         return config;
     }
 
-    public static void loadConfig() {
+ public static void loadConfig() {
         if (CONFIG_FILE.exists()) {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
-                config = GSON.fromJson(reader, Config.class);
-                return;
-            } catch (IOException e) {
+                Config loadedConfig = GSON.fromJson(reader, Config.class);
+                if (loadedConfig != null) {
+                    config = loadedConfig;
+                    return;
+                }
+                LOGGER.warn("config file is empty or contains null; using defaults");
+            } catch (IOException | JsonParseException e) {
                 LOGGER.error("failed to load config file with exception: \n    {}", e.toString());
             }
         }
