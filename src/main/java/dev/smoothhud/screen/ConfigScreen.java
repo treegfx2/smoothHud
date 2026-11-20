@@ -8,6 +8,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
+import net.minecraft.client.toast.SystemToast;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -48,7 +49,14 @@ public class ConfigScreen extends Screen {
                 ButtonWidget.builder(Text.of("Save & Exit"), (x) -> {
                             assert this.client != null;
                             ConfigManager.getConfig().speed = tempSpeed;
-                            ConfigManager.saveConfig();
+                            if (!ConfigManager.saveConfig()) {
+                                this.client.getToastManager().add(
+                                    new SystemToast(SystemToast.Type.UNSECURE_SERVER_WARNING,
+                                        Text.of("SmoothHud config warning"),
+                                        Text.of("Your config could not be saved correctly!")
+                                    )
+                                );
+                            }
                             this.client.setScreen(parent);
                 }).dimensions(this.width / 2 - 100, this.height / 4 + 48, 200, 20).build()
         );
@@ -96,8 +104,10 @@ public class ConfigScreen extends Screen {
             float diff = targetX - currentX;
             currentX += diff * deltaTime * tempSpeed;
         }
+
         int hotbarX = this.width / 2 - 91;
         int hotbarY = this.height / 4 + 100;
+        int roundedCurrentX = Math.round(currentX) - 1;
 
         // hotbar
         context.drawTexture(
@@ -108,8 +118,6 @@ public class ConfigScreen extends Screen {
                 182, 22, 182, 22
         );
 
-        int roundedCurrentX = Math.round(currentX) - 1;
-
         // hotbar selection
         context.drawTexture(
                 RenderPipelines.GUI_TEXTURED,
@@ -119,14 +127,13 @@ public class ConfigScreen extends Screen {
                 24, 23, 24, 23
         );
 
-        long time = System.currentTimeMillis();
         String message = "Scroll or press hotkeys to preview";
 
         int x = (this.width - this.textRenderer.getWidth(message)) / 2;
         int y = hotbarY + 25;
 
-        int color = ((time / 300) % 2 == 0) ? 0xFF555555 : 0xFF666666;
-
+        // light blinking effect
+        int color = ((currentTime / 300) % 2 == 0) ? 0xFF555555 : 0xFF666666;
         context.drawText(this.textRenderer, message, x, y, color, true);
     }
 }

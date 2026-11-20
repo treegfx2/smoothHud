@@ -1,32 +1,37 @@
 {
-	"schemaVersion": 1,
-	"id": "smoothhud",
-	"version": "${version}",
-	"name": "SmoothHud",
-	"description": "Simple mod that animates the selected hotbar slot highlight when switching slots.",
-	"authors": [
-		"treegfx"
-	],
-	"contact": {
-		"sources": "https://github.com/treegfx2/smoothHud"
-	},
-	"icon": "assets/smoothhud/icon.png",
-	"environment": "*",
-	"mixins": [
-		"smoothhud.mixins.json"
-	],
-	"entrypoints": {
-		"modmenu": [
-			"dev.smoothhud.ModMenu"
-		]
-	},
-	"resources": [
-		"assets.smoothhud"
-	],
-	"depends": {
-		"fabricloader": ">=0.18.4",
-		"minecraft": ">=1.21.6",
-		"java": ">=21",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "smoothhud",
+  "version": "${version}",
+  "name": "SmoothHud",
+  "description": "Animate the selected hotbar slot highlight when switching slots.",
+  "authors": [
+    "treegfx"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/smooth-hud",
+    "sources": "https://github.com/treegfx2/smoothHud",
+    "issues": "https://github.com/treegfx2/smoothHud/issues"
+  },
+  "icon": "assets/smoothhud/icon.png",
+  "environment": "client",
+  "mixins": [
+    "smoothhud.mixins.json"
+  ],
+  "entrypoints": {
+    "modmenu": [
+      "dev.smoothhud.ModMenu"
+    ],
+    "main": [
+      "dev.smoothhud.ConfigManager"
+    ]
+  },
+  "resources": [
+    "assets.smoothhud"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": ">=1.21.6",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
 }
