@@ -1,12 +1,13 @@
 package dev.smoothhud.screen;
 
-import dev.smoothhud.Config;
 import dev.smoothhud.ConfigManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -48,9 +49,15 @@ public class ConfigScreen extends Screen{
         };
 
         Button saveButtonWidget = Button.builder(Component.literal("Save & Exit"), (_) -> {
-            // just assume everything going fine
             ConfigManager.getConfig().speed = tempSpeed;
-            ConfigManager.saveConfig();
+            if (!ConfigManager.saveConfig()) {
+                Minecraft.getInstance().gui.toastManager().addToast(
+                        new SystemToast(SystemToast.SystemToastId.UNSECURE_SERVER_WARNING,
+                                Component.literal("SmoothHud config warning"),
+                                Component.literal("Your config could not be saved correctly!")
+                        )
+                );
+            }
             this.minecraft.setScreenAndShow(parent);
         }).bounds(
                 this.width / 2 - 100, this.height / 4 + 48,
@@ -133,6 +140,7 @@ public class ConfigScreen extends Screen{
         int x = this.width / 2;
         int y = hotbarY + 25;
 
+        // light blinking effect
         int color = ((currentTime / 300) % 2 == 0) ? 0xFF555555 : 0xFF666666;
         graphics.centeredText(this.font, "Scroll or press hotkeys to preview", x, y, color);
     }

@@ -18,6 +18,9 @@
   "entrypoints": {
     "modmenu": [
       "dev.smoothhud.ModMenu"
+    ],
+    "main": [
+      "dev.smoothhud.ConfigManager"
     ]
   },
   "resources": [
